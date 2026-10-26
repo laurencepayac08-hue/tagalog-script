@@ -1,0 +1,13 @@
+# Nagbibilang mula isa hanggang tatlo
+itakda bilang = 1
+
+habang bilang <= 3
+    sabihin bilang
+    itakda bilang = bilang + 1
+tapos
+
+kung bilang == 4 at hindi mali
+    sabihin "Tapos na ang bilang"
+kundi
+    sabihin "May mali"
+tapos

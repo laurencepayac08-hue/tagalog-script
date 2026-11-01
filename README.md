@@ -34,10 +34,38 @@ Output:
 | totoo / mali | true / false |
 | at / o / hindi | and / or / not |
 
+## Parser output
+
+The parser turns the tokens into a syntax tree. Run an example to see the tree.
+
+```
+java -cp out tagalog.Main examples/ekspresyon.tgl
+```
+
+Input:
+
+```
+sabihin 1 + 2 * 3
+sabihin (1 + 2) * 3
+```
+
+Output:
+
+```
+Sabihin (+ 1 (* 2 3))
+Sabihin (* (grupo (+ 1 2)) 3)
+```
+
+Use the --tokens option to print the lexer output instead.
+
+```
+java -cp out tagalog.Main examples/bilang.tgl --tokens
+```
+
 ## Project structure
 
 ```
-src/tagalog/   Java source files
+src/tagalog/   Lexer, Parser, syntax tree classes, and Main
 examples/      Sample .tgl programs
 ```
 
@@ -51,7 +79,7 @@ java -cp out tagalog.Main examples/bilang.tgl
 ## Roadmap
 
 - [x] Lexer
-- [ ] Parser and syntax tree
+- [x] Parser and syntax tree
 - [ ] Interpreter for variables and expressions
 - [ ] Conditions and loops
 - [ ] Functions

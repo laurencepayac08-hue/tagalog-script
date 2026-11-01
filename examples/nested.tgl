@@ -1,0 +1,9 @@
+itakda i = 1
+habang i <= 3
+    kung i == 2
+        sabihin "dalawa"
+    kundi
+        sabihin i
+    tapos
+    itakda i = i + 1
+tapos

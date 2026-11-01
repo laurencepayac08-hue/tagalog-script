@@ -9,17 +9,17 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException {
         if (args.length < 1) {
-            System.out.println("Gamit: java tagalog.Main <file.tgl> [--tokens]");
+            System.out.println("Gamit: java tagalog.Main <file.tgl> [--tokens | --tree]");
             return;
         }
 
         String source = new String(Files.readAllBytes(Paths.get(args[0])), StandardCharsets.UTF_8);
-        boolean showTokens = args.length > 1 && args[1].equals("--tokens");
+        String option = args.length > 1 ? args[1] : "";
 
         try {
             List<Token> tokens = new Lexer(source).scanTokens();
 
-            if (showTokens) {
+            if (option.equals("--tokens")) {
                 for (Token token : tokens) {
                     System.out.println(token);
                 }
@@ -27,8 +27,14 @@ public class Main {
             }
 
             List<Stmt> statements = new Parser(tokens).parse();
-            System.out.print(new AstPrinter().print(statements));
-        } catch (IllegalArgumentException | ParseException e) {
+
+            if (option.equals("--tree")) {
+                System.out.print(new AstPrinter().print(statements));
+                return;
+            }
+
+            new Interpreter().interpret(statements);
+        } catch (IllegalArgumentException | ParseException | RuntimeError e) {
             System.out.println("Error: " + e.getMessage());
         }
     }

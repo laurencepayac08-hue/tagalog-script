@@ -1,0 +1,11 @@
+# Unang sampung numero ng Fibonacci
+itakda a = 0
+itakda b = 1
+itakda i = 1
+habang i <= 10
+    sabihin a
+    itakda temp = a + b
+    itakda a = b
+    itakda b = temp
+    itakda i = i + 1
+tapos

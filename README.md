@@ -34,19 +34,33 @@ Output:
 | totoo / mali | true / false |
 | at / o / hindi | and / or / not |
 
-## Parser output
+## How to run
 
-The parser turns the tokens into a syntax tree. Run an example to see the tree.
-
-```
-java -cp out tagalog.Main examples/ekspresyon.tgl
-```
-
-Input:
+You need Java 17 or newer.
 
 ```
-sabihin 1 + 2 * 3
-sabihin (1 + 2) * 3
+javac -d out src/tagalog/*.java
+java -cp out tagalog.Main examples/kabuuan.tgl
+```
+
+Output:
+
+```
+Ang kabuuan ay 55
+```
+
+## Options
+
+Print the tokens from the lexer:
+
+```
+java -cp out tagalog.Main examples/bilang.tgl --tokens
+```
+
+Print the syntax tree from the parser:
+
+```
+java -cp out tagalog.Main examples/ekspresyon.tgl --tree
 ```
 
 Output:
@@ -54,34 +68,33 @@ Output:
 ```
 Sabihin (+ 1 (* 2 3))
 Sabihin (* (grupo (+ 1 2)) 3)
+Sabihin (+ (- 5) (/ 10 2))
+Sabihin (o (hindi totoo) mali)
+Sabihin (at (< 3 5) (>= 5 5))
 ```
 
-Use the --tokens option to print the lexer output instead.
+## Errors
+
+Errors appear in Tagalog and show the line number.
 
 ```
-java -cp out tagalog.Main examples/bilang.tgl --tokens
+Error: Linya 2: walang variable na 'bilang'
+Error: Linya 2: hindi maaaring hatiin sa zero
+Error: Linya 1: inaasahan ang pangalan ng variable pagkatapos ng 'itakda' (nakita: '=')
 ```
 
 ## Project structure
 
 ```
-src/tagalog/   Lexer, Parser, syntax tree classes, and Main
+src/tagalog/   Lexer, Parser, Interpreter, syntax tree classes, and Main
 examples/      Sample .tgl programs
-```
-
-## How to run
-
-```
-javac -d out src/tagalog/*.java
-java -cp out tagalog.Main examples/bilang.tgl
 ```
 
 ## Roadmap
 
 - [x] Lexer
 - [x] Parser and syntax tree
-- [ ] Interpreter for variables and expressions
-- [ ] Conditions and loops
+- [x] Interpreter for variables and expressions
+- [x] Conditions and loops
 - [ ] Functions
-- [ ] Error messages in Tagalog
 - [ ] Unit tests with JUnit

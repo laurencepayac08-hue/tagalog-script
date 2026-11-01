@@ -1,0 +1,8 @@
+# Kabuuan ng 1 hanggang 10
+itakda kabuuan = 0
+itakda i = 1
+habang i <= 10
+    itakda kabuuan = kabuuan + i
+    itakda i = i + 1
+tapos
+sabihin "Ang kabuuan ay " + kabuuan

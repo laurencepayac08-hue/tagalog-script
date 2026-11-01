@@ -14,4 +14,13 @@ public sealed interface Stmt {
 
     // habang ... tapos
     record While(Expr condition, List<Stmt> body) implements Stmt {}
+
+    // gawin kuwadrado(x) ... tapos
+    record Function(Token name, List<Token> params, List<Stmt> body) implements Stmt {}
+
+    // ibalik x * x
+    record Return(Token keyword, Expr value) implements Stmt {}
+
+    // bati("Juan")
+    record Expression(Expr expression) implements Stmt {}
 }

@@ -20,6 +20,8 @@ public class Lexer {
         KEYWORDS.put("at", TokenType.AT);
         KEYWORDS.put("o", TokenType.O);
         KEYWORDS.put("hindi", TokenType.HINDI);
+        KEYWORDS.put("gawin", TokenType.GAWIN);
+        KEYWORDS.put("ibalik", TokenType.IBALIK);
     }
 
     private final String source;
@@ -46,6 +48,7 @@ public class Lexer {
         switch (c) {
             case '(': add(TokenType.LEFT_PAREN); break;
             case ')': add(TokenType.RIGHT_PAREN); break;
+            case ',': add(TokenType.COMMA); break;
             case '+': add(TokenType.PLUS); break;
             case '-': add(TokenType.MINUS); break;
             case '*': add(TokenType.STAR); break;

@@ -16,12 +16,14 @@ public enum TokenType {
     AT,        // and
     O,         // or
     HINDI,     // not
+    GAWIN,     // define a function
+    IBALIK,    // return a value
 
     // Operators
     PLUS, MINUS, STAR, SLASH,
     EQUAL, EQUAL_EQUAL, BANG_EQUAL,
     LESS, LESS_EQUAL, GREATER, GREATER_EQUAL,
-    LEFT_PAREN, RIGHT_PAREN,
+    LEFT_PAREN, RIGHT_PAREN, COMMA,
 
     // Structure
     NEWLINE, EOF

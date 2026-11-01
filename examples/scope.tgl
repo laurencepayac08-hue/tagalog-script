@@ -1,0 +1,10 @@
+# Ang variable sa loob ng function ay hindi lumalabas
+itakda x = 10
+
+gawin baguhin()
+    itakda x = 99
+    sabihin x
+tapos
+
+baguhin()
+sabihin x

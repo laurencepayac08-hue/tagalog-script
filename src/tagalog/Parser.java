@@ -7,11 +7,15 @@ import java.util.List;
  * Grammar
  *
  * program     -> statement* EOF
- * statement   -> assign | print | if | while
+ * statement   -> assign | print | if | while | function | return | callStmt
  * assign      -> "itakda" IDENTIFIER "=" expression NEWLINE
  * print       -> "sabihin" expression NEWLINE
  * if          -> "kung" expression NEWLINE block ( "kundi" NEWLINE block )? "tapos" NEWLINE
  * while       -> "habang" expression NEWLINE block "tapos" NEWLINE
+ * function    -> "gawin" IDENTIFIER "(" parameters? ")" NEWLINE block "tapos" NEWLINE
+ * return      -> "ibalik" expression? NEWLINE
+ * callStmt    -> call NEWLINE
+ * parameters  -> IDENTIFIER ( "," IDENTIFIER )*
  *
  * expression  -> or
  * or          -> and ( "o" and )*
@@ -20,12 +24,15 @@ import java.util.List;
  * comparison  -> term ( ( "<" | "<=" | ">" | ">=" ) term )*
  * term        -> factor ( ( "+" | "-" ) factor )*
  * factor      -> unary ( ( "*" | "/" ) unary )*
- * unary       -> ( "hindi" | "-" ) unary | primary
+ * unary       -> ( "hindi" | "-" ) unary | call
+ * call        -> primary ( "(" arguments? ")" )*
+ * arguments   -> expression ( "," expression )*
  * primary     -> NUMBER | STRING | "totoo" | "mali" | IDENTIFIER | "(" expression ")"
  */
 public class Parser {
     private final List<Token> tokens;
     private int current = 0;
+    private int functionDepth = 0;
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
@@ -48,7 +55,10 @@ public class Parser {
         if (match(TokenType.SABIHIN)) return printStatement();
         if (match(TokenType.KUNG)) return ifStatement();
         if (match(TokenType.HABANG)) return whileStatement();
-        throw error(peek(), "inaasahan ang 'itakda', 'sabihin', 'kung', o 'habang'");
+        if (match(TokenType.GAWIN)) return functionStatement();
+        if (match(TokenType.IBALIK)) return returnStatement();
+        if (check(TokenType.IDENTIFIER)) return expressionStatement();
+        throw error(peek(), "inaasahan ang 'itakda', 'sabihin', 'kung', 'habang', 'gawin', o 'ibalik'");
     }
 
     private Stmt assignStatement() {
@@ -86,6 +96,53 @@ public class Parser {
         consume(TokenType.TAPOS, "inaasahan ang 'tapos' sa dulo ng 'habang'");
         endStatement();
         return new Stmt.While(condition, body);
+    }
+
+    private Stmt functionStatement() {
+        Token name = consume(TokenType.IDENTIFIER, "inaasahan ang pangalan ng function pagkatapos ng 'gawin'");
+        consume(TokenType.LEFT_PAREN, "inaasahan ang '(' pagkatapos ng pangalan ng function");
+        List<Token> params = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                params.add(consume(TokenType.IDENTIFIER, "inaasahan ang pangalan ng parameter"));
+            } while (match(TokenType.COMMA));
+        }
+        consume(TokenType.RIGHT_PAREN, "inaasahan ang ')' pagkatapos ng mga parameter");
+        consume(TokenType.NEWLINE, "inaasahan ang bagong linya pagkatapos ng 'gawin'");
+
+        functionDepth++;
+        List<Stmt> body = block();
+        functionDepth--;
+
+        consume(TokenType.TAPOS, "inaasahan ang 'tapos' sa dulo ng 'gawin'");
+        endStatement();
+        return new Stmt.Function(name, params, body);
+    }
+
+    private Stmt returnStatement() {
+        Token keyword = previous();
+        if (functionDepth == 0) {
+            throw error(keyword, "ang 'ibalik' ay para sa loob ng function lamang");
+        }
+        Expr value = null;
+        if (!check(TokenType.NEWLINE) && !isAtEnd()) {
+            value = expression();
+        }
+        endStatement();
+        return new Stmt.Return(keyword, value);
+    }
+
+    private Stmt expressionStatement() {
+        Token start = peek();
+        Expr expr = expression();
+        if (check(TokenType.EQUAL)) {
+            throw error(start, "gamitin ang 'itakda' para magtakda ng variable");
+        }
+        if (!(expr instanceof Expr.Call)) {
+            throw error(start, "inaasahan ang pahayag o ang pagtawag ng function");
+        }
+        endStatement();
+        return new Stmt.Expression(expr);
     }
 
     private List<Stmt> block() {
@@ -176,7 +233,26 @@ public class Parser {
             Expr right = unary();
             return new Expr.Unary(operator, right);
         }
-        return primary();
+        return call();
+    }
+
+    private Expr call() {
+        Expr expr = primary();
+        while (match(TokenType.LEFT_PAREN)) {
+            expr = finishCall(expr);
+        }
+        return expr;
+    }
+
+    private Expr finishCall(Expr callee) {
+        List<Expr> arguments = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                arguments.add(expression());
+            } while (match(TokenType.COMMA));
+        }
+        Token paren = consume(TokenType.RIGHT_PAREN, "inaasahan ang ')' pagkatapos ng mga argumento");
+        return new Expr.Call(callee, paren, arguments);
     }
 
     private Expr primary() {

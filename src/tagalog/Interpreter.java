@@ -1,15 +1,33 @@
 package tagalog;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class Interpreter {
-    private final Map<String, Object> variables = new HashMap<>();
+    private final Environment globals = new Environment();
+    private Environment environment = globals;
+
+    // A function remembers the environment where it was defined.
+    private record TagalogFunction(Stmt.Function declaration, Environment closure) {}
+
+    // Thrown by "ibalik" to leave a function with a value.
+    private static class ReturnSignal extends RuntimeException {
+        final Object value;
+
+        ReturnSignal(Object value) {
+            super(null, null, false, false);
+            this.value = value;
+        }
+    }
 
     public void interpret(List<Stmt> statements) {
-        execute(statements);
+        try {
+            execute(statements);
+        } catch (StackOverflowError e) {
+            environment = globals;
+            throw new RuntimeError("masyadong malalim ang pagtawag ng function");
+        }
     }
 
     // Statements
@@ -22,7 +40,7 @@ public class Interpreter {
 
     private void execute(Stmt statement) {
         if (statement instanceof Stmt.Assign a) {
-            variables.put(a.name().lexeme, evaluate(a.value()));
+            environment.define(a.name().lexeme, evaluate(a.value()));
         } else if (statement instanceof Stmt.Print p) {
             System.out.println(stringify(evaluate(p.expression())));
         } else if (statement instanceof Stmt.If i) {
@@ -35,6 +53,13 @@ public class Interpreter {
             while (isTrue(evaluate(w.condition()), lineOf(w.condition()))) {
                 execute(w.body());
             }
+        } else if (statement instanceof Stmt.Function f) {
+            environment.define(f.name().lexeme, new TagalogFunction(f, environment));
+        } else if (statement instanceof Stmt.Return r) {
+            Object value = r.value() == null ? null : evaluate(r.value());
+            throw new ReturnSignal(value);
+        } else if (statement instanceof Stmt.Expression e) {
+            evaluate(e.expression());
         } else {
             throw new IllegalStateException("Hindi kilalang pahayag");
         }
@@ -51,10 +76,10 @@ public class Interpreter {
         }
         if (expression instanceof Expr.Variable v) {
             String name = v.name().lexeme;
-            if (!variables.containsKey(name)) {
+            if (!environment.has(name)) {
                 throw error(v.name().line, "walang variable na '" + name + "'");
             }
-            return variables.get(name);
+            return environment.get(name);
         }
         if (expression instanceof Expr.Unary u) {
             return unary(u);
@@ -62,7 +87,46 @@ public class Interpreter {
         if (expression instanceof Expr.Binary b) {
             return binary(b);
         }
+        if (expression instanceof Expr.Call c) {
+            return call(c);
+        }
         throw new IllegalStateException("Hindi kilalang expression");
+    }
+
+    private Object call(Expr.Call expr) {
+        Object callee = evaluate(expr.callee());
+        List<Object> arguments = new ArrayList<>();
+        for (Expr argument : expr.arguments()) {
+            arguments.add(evaluate(argument));
+        }
+
+        if (!(callee instanceof TagalogFunction function)) {
+            throw error(expr.paren().line, "hindi function ang tinawag");
+        }
+
+        int expected = function.declaration().params().size();
+        if (arguments.size() != expected) {
+            throw error(expr.paren().line, "inaasahan ang " + expected + " argumento pero "
+                    + arguments.size() + " ang ibinigay");
+        }
+        return callFunction(function, arguments);
+    }
+
+    private Object callFunction(TagalogFunction function, List<Object> arguments) {
+        Environment previous = environment;
+        environment = new Environment(function.closure());
+        try {
+            List<Token> params = function.declaration().params();
+            for (int i = 0; i < params.size(); i++) {
+                environment.define(params.get(i).lexeme, arguments.get(i));
+            }
+            execute(function.declaration().body());
+            return null;
+        } catch (ReturnSignal signal) {
+            return signal.value;
+        } finally {
+            environment = previous;
+        }
     }
 
     private Object unary(Expr.Unary expr) {
@@ -173,6 +237,7 @@ public class Interpreter {
         if (expression instanceof Expr.Variable v) return v.name().line;
         if (expression instanceof Expr.Unary u) return u.operator().line;
         if (expression instanceof Expr.Binary b) return b.operator().line;
+        if (expression instanceof Expr.Call c) return c.paren().line;
         if (expression instanceof Expr.Grouping g) return lineOf(g.expression());
         return -1;
     }
@@ -185,6 +250,9 @@ public class Interpreter {
     }
 
     private String stringify(Object value) {
+        if (value == null) {
+            return "wala";
+        }
         if (value instanceof Double d) {
             if (d == Math.floor(d) && !Double.isInfinite(d)) {
                 return String.valueOf(d.longValue());
@@ -193,6 +261,9 @@ public class Interpreter {
         }
         if (value instanceof Boolean b) {
             return b ? "totoo" : "mali";
+        }
+        if (value instanceof TagalogFunction f) {
+            return "<function " + f.declaration().name().lexeme + ">";
         }
         return String.valueOf(value);
     }

@@ -1,0 +1,13 @@
+# Fibonacci gamit ang recursion
+gawin fib(n)
+    kung n < 2
+        ibalik n
+    tapos
+    ibalik fib(n - 1) + fib(n - 2)
+tapos
+
+itakda i = 0
+habang i <= 10
+    sabihin fib(i)
+    itakda i = i + 1
+tapos

@@ -1,6 +1,7 @@
 package tagalog;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AstPrinter {
     public String print(List<Stmt> statements) {
@@ -42,6 +43,21 @@ public class AstPrinter {
             sb.append(pad).append("Tapos");
             return sb.toString();
         }
+        if (statement instanceof Stmt.Function f) {
+            String params = f.params().stream().map(t -> t.lexeme).collect(Collectors.joining(", "));
+            StringBuilder sb = new StringBuilder();
+            sb.append(pad).append("Gawin ").append(f.name().lexeme).append("(").append(params).append(")\n");
+            sb.append(block(f.body(), indent + 1));
+            sb.append(pad).append("Tapos");
+            return sb.toString();
+        }
+        if (statement instanceof Stmt.Return r) {
+            if (r.value() == null) return pad + "Ibalik";
+            return pad + "Ibalik " + expr(r.value());
+        }
+        if (statement instanceof Stmt.Expression e) {
+            return pad + expr(e.expression());
+        }
         throw new IllegalStateException("Hindi kilalang pahayag");
     }
 
@@ -60,6 +76,13 @@ public class AstPrinter {
         }
         if (expression instanceof Expr.Grouping g) {
             return "(grupo " + expr(g.expression()) + ")";
+        }
+        if (expression instanceof Expr.Call c) {
+            StringBuilder sb = new StringBuilder("(tawag ").append(expr(c.callee()));
+            for (Expr argument : c.arguments()) {
+                sb.append(" ").append(expr(argument));
+            }
+            return sb.append(")").toString();
         }
         throw new IllegalStateException("Hindi kilalang expression");
     }

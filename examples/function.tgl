@@ -1,0 +1,19 @@
+# Mga function
+gawin kuwadrado(x)
+    ibalik x * x
+tapos
+
+gawin bati(pangalan)
+    sabihin "Kumusta, " + pangalan + "!"
+tapos
+
+gawin factorial(n)
+    kung n <= 1
+        ibalik 1
+    tapos
+    ibalik n * factorial(n - 1)
+tapos
+
+sabihin kuwadrado(7)
+sabihin factorial(5)
+bati("Juan")

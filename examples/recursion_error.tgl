@@ -1,0 +1,4 @@
+gawin walang_hanggan(n)
+    ibalik walang_hanggan(n + 1)
+tapos
+sabihin walang_hanggan(1)

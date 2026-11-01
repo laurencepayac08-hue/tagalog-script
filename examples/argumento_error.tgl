@@ -1,0 +1,4 @@
+gawin dagdag(a, b)
+    ibalik a + b
+tapos
+sabihin dagdag(1)

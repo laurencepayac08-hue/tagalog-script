@@ -1,0 +1,1 @@
+Error: Linya 1: ang 'ibalik' ay para sa loob ng function lamang (nakita: 'ibalik')

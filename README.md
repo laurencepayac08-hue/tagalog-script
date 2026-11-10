@@ -2,6 +2,12 @@
 
 A small programming language with Tagalog keywords, written in Java. The project includes a lexer, a parser, an interpreter, functions, and a JUnit test suite.
 
+## Live demo
+
+Try it in your browser, with nothing to install: https://laurencepayac08-hue.github.io/tagalog-script/
+
+The playground runs a JavaScript version of the interpreter. The page lives in the `docs` folder.
+
 ## Example
 
 ```
@@ -97,11 +103,21 @@ The project has 61 JUnit tests for the lexer, the parser, and the interpreter.
 bash test.sh
 ```
 
+## Tests for the web version
+
+The JavaScript version must give the same output as the Java version. The tests run every program in `examples` through the JavaScript code and compare the result with the saved Java output. You need Node.js 20 or newer.
+
+```
+node --test
+```
+
 ## Project structure
 
 ```
 src/tagalog/    Lexer, Parser, Interpreter, syntax tree classes, and Main
 test/tagalog/   JUnit tests
+docs/           Web playground (HTML and JavaScript)
+test-web/       Tests for the JavaScript version
 examples/       Sample .tgl programs
 lib/            Place for the JUnit jar (not uploaded to GitHub)
 run.sh          Compile and run a program
@@ -116,5 +132,6 @@ test.sh         Compile and run all tests
 - [x] Conditions and loops
 - [x] Functions
 - [x] Unit tests with JUnit
+- [x] Web playground on GitHub Pages
 - [ ] Remainder operator
 - [ ] Lists

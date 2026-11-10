@@ -1,0 +1,1 @@
+Error: Linya 4: inaasahan ang 2 argumento pero 1 ang ibinigay

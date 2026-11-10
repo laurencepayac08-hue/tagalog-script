@@ -1,0 +1,1 @@
+Error: Linya 1: inaasahan ang ')' pagkatapos ng expression (nakita: dulo ng linya)

@@ -1,0 +1,2 @@
+Simula
+Error: Linya 2: walang variable na 'bilang'

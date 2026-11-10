@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tagalog Script Playground</title>
+<meta name="description" content="Write and run programs with Tagalog keywords in your browser.">
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--ink:#17202b;--muted:#5c6773;--line:#d8dee5;--accent:#2447d6;--accent-ink:#fff;--err-bg:#fdecea;--err:#a4261c;--code:#0f1720;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--panel:#151b23;--ink:#e6e9ee;--muted:#98a2ae;--line:#2a323d;--accent:#7aa2ff;--accent-ink:#0d1117;--err-bg:#3a1613;--err:#ff9a90;--code:#0b0f14}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1040px;margin:0 auto;padding:28px 20px 48px}
+h1{margin:0;font-size:1.9rem;line-height:1.2}
+.lead{margin:6px 0 22px;color:var(--muted);max-width:60ch}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;display:flex;flex-direction:column;min-width:0}
+.bar{display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+.bar strong{font-size:.95rem}
+.sp{flex:1}
+select,button{font:inherit;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 10px;max-width:50%}
+button{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;cursor:pointer}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+textarea,pre{margin:0;font:14px/1.6 ui-monospace,Consolas,"Courier New",monospace;tab-size:4}
+textarea{flex:1;min-height:340px;padding:12px;border:0;resize:vertical;background:var(--code);color:#e6e9ee;border-radius:0 0 8px 8px}
+pre{flex:1;min-height:340px;padding:12px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.err{background:var(--err-bg);color:var(--err);padding:10px 12px;border-top:1px solid var(--line);border-radius:0 0 8px 8px;font:14px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap}
+h2{font-size:1.1rem;margin:28px 0 8px}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 18px;margin:0}
+dt{font:600 14px ui-monospace,Consolas,monospace}
+dd{margin:0;color:var(--muted)}
+footer{margin-top:28px;color:var(--muted);font-size:.9rem}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Tagalog Script Playground</h1>
+  <p class="lead">Write programs with Tagalog keywords and run them in your browser. Your code stays on your device.</p>
+
+  <div class="grid">
+    <section class="card" aria-label="Program">
+      <div class="bar">
+        <strong>Program</strong><span class="sp"></span>
+        <select id="examples" aria-label="Example programs"></select>
+        <button id="run" type="button" title="Ctrl + Enter">Run program</button>
+      </div>
+      <textarea id="code" spellcheck="false" aria-label="Tagalog Script code"></textarea>
+    </section>
+    <section class="card" aria-label="Output">
+      <div class="bar"><strong>Output</strong></div>
+      <pre id="out" aria-live="polite"></pre>
+      <div id="err" class="err" hidden></div>
+    </section>
+  </div>
+
+  <h2>Keywords</h2>
+  <dl>
+    <dt>itakda</dt><dd>set a variable: itakda bilang = 1</dd>
+    <dt>sabihin</dt><dd>print a value</dd>
+    <dt>kung, kundi, tapos</dt><dd>if, else, and the end of a block</dd>
+    <dt>habang, tapos</dt><dd>repeat while a condition is true</dd>
+    <dt>gawin, ibalik</dt><dd>define a function and return a value</dd>
+    <dt>totoo, mali</dt><dd>true and false</dd>
+    <dt>at, o, hindi</dt><dd>and, or, not</dd>
+    <dt>#</dt><dd>a comment until the end of the line</dd>
+  </dl>
+
+  <footer>Source code and the Java version: <a href="https://github.com/laurencepayac08-hue/tagalog-script">github.com/laurencepayac08-hue/tagalog-script</a></footer>
+</main>
+
+<script src="tagalog.js"></script>
+<script>
+const EXAMPLES = {
+  "Bilang": `# Nagbibilang mula isa hanggang tatlo
+itakda bilang = 1
+habang bilang <= 3
+    sabihin bilang
+    itakda bilang = bilang + 1
+tapos
+`,
+  "Mga function": `gawin kuwadrado(x)
+    ibalik x * x
+tapos
+
+gawin factorial(n)
+    kung n <= 1
+        ibalik 1
+    tapos
+    ibalik n * factorial(n - 1)
+tapos
+
+gawin bati(pangalan)
+    sabihin "Kumusta, " + pangalan + "!"
+tapos
+
+sabihin kuwadrado(7)
+sabihin factorial(5)
+bati("Juan")
+`,
+  "Fibonacci": `gawin fib(n)
+    kung n < 2
+        ibalik n
+    tapos
+    ibalik fib(n - 1) + fib(n - 2)
+tapos
+
+itakda i = 0
+habang i <= 10
+    sabihin fib(i)
+    itakda i = i + 1
+tapos
+`,
+  "Error na may linya": `sabihin "Simula"
+sabihin bilang + 1
+`
+};
+
+const code = document.getElementById("code");
+const out = document.getElementById("out");
+const err = document.getElementById("err");
+const select = document.getElementById("examples");
+
+function runProgram() {
+  const result = TagalogScript.run(code.value);
+  out.textContent = result.output.join("\n");
+  err.hidden = !result.error;
+  err.textContent = result.error ? "Error: " + result.error : "";
+}
+
+for (const name of Object.keys(EXAMPLES)) select.add(new Option(name, name));
+select.addEventListener("change", () => { code.value = EXAMPLES[select.value]; runProgram(); });
+document.getElementById("run").addEventListener("click", runProgram);
+code.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); runProgram(); }
+});
+
+code.value = EXAMPLES[select.value];
+runProgram();
+</script>
+</body>
+</html>
